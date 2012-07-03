@@ -56,8 +56,8 @@ exprs
     ;
 
 expr
-    : call args                             { $$ = createCall($1, $2); }
-    | lval TOKEN_ASSIGN arg                 { $$ = createAssign($1, $3); }
+    : call args                             { $$ = performCall($1, $2); }
+    | lval TOKEN_ASSIGN arg                 { $$ = performAssign($1, $3); }
     ;
 
 call
@@ -69,8 +69,8 @@ lval
     ;
 
 args
-    : arg                                   { $$ = createArg($1); }
-    | arg TOKEN_COMA arg                    { }
+    : arg                                   { $$ = appendArg($1, NULL); }
+    | arg TOKEN_COMA arg                    { $$ = appendArg($1, $3); }
     ;
 
 arg

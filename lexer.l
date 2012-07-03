@@ -33,7 +33,7 @@ WS          [ \r\n\t]*
 {NUM}           { yylval->num = strtoul(yytext, (char **)NULL, 0); return TOKEN_NUM; }
 {HEX}           { yylval->num = strtoul(yytext, (char **)NULL, 0); return TOKEN_NUM; }
 {STR}           { strncpy(yylval->str, yytext, sizeof(yylval->str)); return TOKEN_STR; }
-{QSTR}          { strncpy(yylval->str, yytext, sizeof(yylval->str)); return TOKEN_QSTR; }
+{QSTR}          { strncpy(yylval->str, yytext+1, sizeof(yylval->str)); yylval->str[strlen(yylval->str)-1] = '\0'; return TOKEN_QSTR; }
 
 {WS}            { }
 

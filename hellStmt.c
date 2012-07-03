@@ -16,6 +16,7 @@ allocateStmt(void)
         return NULL;
 
     b->type = hellUndef;
+    b->next = NULL;
 
     return b;
 }
@@ -25,7 +26,7 @@ createNum(unsigned long value)
 {
     hellStmt *b = allocateStmt();
 
-    printf("%s %lu\n", __func__, value);
+    /* printf("%s %lu\n", __func__, value); */
 
     if (b == NULL)
         return NULL;
@@ -41,7 +42,7 @@ createStr(char *value)
 {
     hellStmt *b = allocateStmt();
 
-    printf("%s '%s'\n", __func__, value);
+    /* printf("%s '%s'\n", __func__, value); */
 
     if (b == NULL)
         return NULL;
@@ -53,49 +54,67 @@ createStr(char *value)
 }
 
 hellStmt *
-createArg(hellStmt *arg)
+appendArg(hellStmt *args, hellStmt *arg)
 {
-    hellStmt *b = allocateStmt();
+    hellStmt *a = args;
 
-    printf("%s\n", __func__);
+    while (a->next)
+        a = a->next;
+    a->next = arg;
 
-    if (b == NULL)
-        return NULL;
-
-    b->type = hellArg;
-
-    return b;
+    return args;
 }
 
 hellStmt *
-createAssign(hellStmt *func, hellStmt *arg)
+performAssign(hellStmt *lval, hellStmt *arg)
 {
-    hellStmt *b = allocateStmt();
+    printf("%s = ", lval->str);
+    while (arg) {
+        switch (arg->type) {
+            case hellNum:
+                printf("%u", arg->num);
+                break;
+            case hellStr:
+                printf("'%s'", arg->str);
+                break;
+            default:
+                printf("(undef)");
+                break;
+        }
+        arg = arg->next;
 
-    printf("%s\n", __func__);
+        if (arg)
+            printf(", ");
+    }
+    printf("\n");
 
-    if (b == NULL)
-        return NULL;
-
-    b->type = hellAssign;
-
-    return b;
+    return NULL;
 }
 
 hellStmt *
-createCall(hellStmt *lval, hellStmt *arg)
+performCall(hellStmt *call, hellStmt *arg)
 {
-    hellStmt *b = allocateStmt();
+    printf("%s(", call->str);
+    while (arg) {
+        switch (arg->type) {
+            case hellNum:
+                printf("%u", arg->num);
+                break;
+            case hellStr:
+                printf("'%s'", arg->str);
+                break;
+            default:
+                printf("(undef)");
+                break;
+        }
+        arg = arg->next;
 
-    printf("%s\n", __func__);
+        if (arg)
+            printf(", ");
+    }
+    printf(")\n");
 
-    if (b == NULL)
-        return NULL;
-
-    b->type = hellCall;
-    /* strcpy(b->str, value); */
-
-    return b;
+    return NULL;
 }
 
 void deleteStmt(hellStmt *b)
@@ -114,13 +133,15 @@ getAST(const char *expr)
     hellStmt *stmt;
     yyscan_t scanner;
     YY_BUFFER_STATE state;
+    extern int yydebug;
 
     printf("stmt: %s\n", expr);
 
     if (yylex_init(&scanner))
         return NULL;
 
-    //yyset_debug(100, scanner);
+    /* yyset_debug(100, scanner); */
+    /* yydebug = 1; */
 
     state = yy_scan_string(expr, scanner);
 
@@ -145,16 +166,7 @@ evaluate(hellStmt *e)
             printf("%s num %lu\n", __func__, e->num);
             break;
         case hellStr:
-            printf("%s str %s\n", __func__, e->str);
-            break;
-        case hellCall:
-            printf("%s call\n", __func__);
-            break;
-        case hellAssign:
-            printf("%s assign\n", __func__);
-            break;
-        case hellArg:
-            printf("%s arg\n", __func__);
+            printf("%s str '%s'\n", __func__, e->str);
             break;
         default:
             printf("%s %u\n", __func__, e->type);
@@ -167,17 +179,20 @@ int main(void)
     char *test[] = {
         "call   \"c\"  , 3  ",
         "call\"c\"  , 3  ",
+        "call\"c\"    ",
         "a=   \"c\"    ",
         "a   =   \"c\"    ",
         "a   =\"c\"    ",
-        "call   \"c\"  , 3  ;call\"c\"  , 3  ;  a=   \"c\"    ",
+        "callA   \"c b\"  , 3  ;callB\"c\"  , 3  ;  a=   \"c\"    ",
         "a   =0x8    ",
         "a   = 0x10    ",
-        "a=0xA;    ",
+        "a=0xA;    b   = 0x10;; ; ;",
+        "a=0;; ;",
+        "a= \"   2\";; ;",
     };
     int i;
 
-    for (i=0;i<9;++i) {
+    for (i=0;i<sizeof(test)/sizeof(*test);++i) {
         printf("===============\n");
         e = getAST(test[i]);
         evaluate(e);

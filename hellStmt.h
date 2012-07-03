@@ -7,25 +7,10 @@ typedef enum hellTokenType {
     hellNum,
     hellStr,
 
-    hellCall,
-    hellAssign,
-
-    hellArg,
-
     hellUndef,
 } hellTokenType;
 
-typedef struct hellCallArg {
-    union {
-        unsigned long num;
-        char str[HELL_MAX_STR_LEN];
-    };
-} hellCallArg;
-
-typedef struct hellCallArgs {
-    hellCallArg arg;
-    hellCallArg *next;
-} hellCallArgs;
+struct hellStmt;
 
 typedef struct hellStmt {
     hellTokenType type;
@@ -33,18 +18,17 @@ typedef struct hellStmt {
     union {
         unsigned long   num;
         char            str[HELL_MAX_STR_LEN];
-        hellCallArg     arg;
-        hellCallArgs    args;
     };
+    struct hellStmt *next;
 } hellStmt;
 
 hellStmt *createNum(unsigned long value);
 hellStmt *createStr(char *value);
 
-hellStmt *createArg(hellStmt *arg);
+hellStmt *appendArg(hellStmt *args, hellStmt *arg);
 
-hellStmt *createCall(hellStmt *func, hellStmt *args);
-hellStmt *createAssign(hellStmt *lval, hellStmt *arg);
+hellStmt *performCall(hellStmt *func, hellStmt *args);
+hellStmt *performAssign(hellStmt *lval, hellStmt *arg);
 
 void deleteStmt(hellStmt *b);
 
