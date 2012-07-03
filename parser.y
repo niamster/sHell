@@ -37,6 +37,7 @@ int yyerror(yyscan_t scanner, hellStmt **expression, const char *msg);
 %token <str> TOKEN_QSTR
 
 %type <stmt> expr
+%type <stmt> exprs
 %type <stmt> call
 %type <stmt> lval
 %type <stmt> args
@@ -45,14 +46,18 @@ int yyerror(yyscan_t scanner, hellStmt **expression, const char *msg);
 %%
 
 input
-    : expr                                  { *stmt = $1; }
+    : exprs                                  { *stmt = $1; }
+    ;
+
+exprs
+    : expr                                  { }
+    | exprs TOKEN_SEMI                      { }
+    | exprs TOKEN_SEMI expr                 { }
     ;
 
 expr
-    : call args                             { $$ = createCall( $1, $2 ); }
-    | lval TOKEN_ASSIGN arg                 { $$ = createAssign( $1, $3 ); }
-    | expr TOKEN_SEMI                       { }
-    | expr TOKEN_SEMI expr                  { }
+    : call args                             { $$ = createCall($1, $2); }
+    | lval TOKEN_ASSIGN arg                 { $$ = createAssign($1, $3); }
     ;
 
 call
