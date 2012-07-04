@@ -8,8 +8,6 @@
 #include "sHellStmt.h"
 #include "sHellParser.h"
 
-#include <stdio.h>
-
 %}
 
 %option outfile="sHellLexer.c" header-file="sHellLexer.h"
@@ -30,10 +28,10 @@ WS          [ \r\n\t]*
 
 %%
 
-{NUM}           { yylval->num = strtoul(yytext, (char **)NULL, 0); return TOKEN_NUM; }
-{HEX}           { yylval->num = strtoul(yytext, (char **)NULL, 0); return TOKEN_NUM; }
-{STR}           { strncpy(yylval->str, yytext, sizeof(yylval->str)); return TOKEN_STR; }
-{QSTR}          { strncpy(yylval->str, yytext+1, sizeof(yylval->str)); yylval->str[strlen(yylval->str)-1] = '\0'; return TOKEN_QSTR; }
+{NUM}           { yylval->num = sHellProcessNum(yytext); return TOKEN_NUM; }
+{HEX}           { yylval->num = sHellProcessNum(yytext); return TOKEN_NUM; }
+{STR}           { yylval->str = sHellProcessString(yytext); return TOKEN_STR; }
+{QSTR}          { yylval->str = sHellProcessQString(yytext); return TOKEN_QSTR; }
 
 {WS}            { }
 

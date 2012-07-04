@@ -23,7 +23,7 @@ int yyerror(yyscan_t scanner, sHellStmt **expression, const char *msg);
 
 %union {
     unsigned long num;
-    char str[SHELL_MAX_STR_LEN];
+    char *str;
     sHellStmt *stmt;
 }
 
@@ -46,7 +46,7 @@ int yyerror(yyscan_t scanner, sHellStmt **expression, const char *msg);
 %%
 
 input
-    : exprs                                  { *stmt = $1; }
+    : exprs                                 { }
     ;
 
 exprs

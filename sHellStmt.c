@@ -1,8 +1,9 @@
+#include <string.h>
+#include <stdlib.h>
+
 #include "sHellStmt.h"
 #include "sHellParser.h"
 #include "sHellLexer.h"
-
-static unsigned int sHellOrphanedStmts = 0;
 
 static sHellAssignCbk   sHellAssign;
 static sHellCallCbk     sHellCall;
@@ -16,9 +17,8 @@ sHellAllocateStmt(void)
         return NULL;
 
     b->type = sHellUndef;
+    b->str  = NULL;
     b->next = NULL;
-
-    ++sHellOrphanedStmts;
 
     return b;
 }
@@ -36,14 +36,14 @@ sHellDeleteStmt(sHellStmt *b)
     while (n) {
         t = n;
         n = n->next;
+        if (sHellStr == t->type && t->str)
+            free(t->str);
         free(t);
-
-        --sHellOrphanedStmts;
     }
 
+    if (sHellStr == b->type && b->str)
+        free(b->str);
     free(b);
-
-    --sHellOrphanedStmts;
 }
 
 sHellAssignCbk
@@ -56,6 +56,40 @@ sHellCallCbk
 sHellSetCallCbk(sHellCallCbk cbk)
 {
     sHellCall = cbk;
+}
+
+char *
+sHellProcessString(const char *str)
+{
+    size_t l = strlen(str) + 1;
+    char *s = malloc(l);
+
+    if (s == NULL)
+        return s;
+
+    return memcpy(s, str, l);
+}
+
+char *
+sHellProcessQString(const char *str)
+{
+    size_t l = strlen(str) - 1;
+    char *s = malloc(l);
+
+    if (s == NULL)
+        return s;
+
+    memcpy(s, str+1, l);
+
+    s[l-1] = '\0';
+
+    return s;
+}
+
+unsigned long
+sHellProcessNum(const char *str)
+{
+    return strtoul(str, (char **)NULL, 0);
 }
 
 sHellStmt *
@@ -81,7 +115,7 @@ sHellCreateStr(char *value)
         return NULL;
 
     b->type = sHellStr;
-    strncpy(b->str, value, sizeof(b->str));
+    b->str = value;
 
     return b;
 }
@@ -114,29 +148,6 @@ sHellPerformCall(sHellStmt *call, sHellStmt *args)
 
     sHellDeleteStmt(call);
     sHellDeleteStmt(args);
-}
-
-void
-sHellEvaluate(sHellStmt *e)
-{
-    if (!e)
-        return;
-
-    switch (e->type) {
-        case sHellNum:
-            printf("%s num %lu\n", __func__, e->num);
-            break;
-        case sHellStr:
-            printf("%s str '%s'\n", __func__, e->str);
-            break;
-        default:
-            printf("%s %u\n", __func__, e->type);
-    }
-
-    sHellDeleteStmt(e);
-
-    if (sHellOrphanedStmts)
-        printf("WARNING: %u orphaned statements\n", sHellOrphanedStmts);
 }
 
 int yyparse(sHellStmt **expression, yyscan_t scanner);

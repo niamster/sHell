@@ -1,8 +1,6 @@
 #ifndef _SHELL_H_
 #define _SHELL_H_
 
-#define SHELL_MAX_STR_LEN 128
-
 typedef enum sHellTokenType {
     sHellNum,
     sHellStr,
@@ -17,7 +15,7 @@ typedef struct sHellStmt {
 
     union {
         unsigned long   num;
-        char            str[SHELL_MAX_STR_LEN];
+        char            *str;
     };
 
     struct sHellStmt *next;
