@@ -57,6 +57,7 @@ exprs
 
 expr
     : call args                             { $$ = hellPerformCall($1, $2); }
+    | call                                  { $$ = hellPerformCall($1, NULL); }
     | lval TOKEN_ASSIGN arg                 { $$ = hellPerformAssign($1, $3); }
     ;
 
