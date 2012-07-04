@@ -181,8 +181,6 @@ sHellParse(const char *expr)
     YY_BUFFER_STATE state;
     extern int yydebug;
 
-    printf("stmt: %s\n", expr);
-
     if (yylex_init(&scanner))
         return NULL;
 
@@ -198,33 +196,4 @@ sHellParse(const char *expr)
     yylex_destroy(scanner);
 
     return stmt;
-}
-
-int main(void)
-{
-    sHellStmt *e;
-    char *test[] = {
-        "call   \"c\"  , 3  ",
-        "call\"c\"  , 3  ",
-        "call\"c\"    ",
-        "a=   \"c\"    ",
-        "a   =   \"c\"    ",
-        "a   =\"c\"    ",
-        "callA   \"c b\"  , 3  ;callB\"c\"  , 3  ;  a=   \"c\"    ",
-        "a   =0x8    ",
-        "a   = 0x10    ",
-        "a=0xA;    b   = 0x10;; ; ;",
-        "a=0;; ;",
-        "a= \"   2\";; ;",
-        "cA ;; cB ;",
-    };
-    int i;
-
-    for (i=0;i<sizeof(test)/sizeof(*test);++i) {
-        printf("===============\n");
-        e = sHellParse(test[i]);
-        sHellEvaluate(e);
-    }
-
-    return 0;
 }
