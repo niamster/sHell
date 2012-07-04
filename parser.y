@@ -56,26 +56,26 @@ exprs
     ;
 
 expr
-    : call args                             { $$ = performCall($1, $2); }
-    | lval TOKEN_ASSIGN arg                 { $$ = performAssign($1, $3); }
+    : call args                             { $$ = hellPerformCall($1, $2); }
+    | lval TOKEN_ASSIGN arg                 { $$ = hellPerformAssign($1, $3); }
     ;
 
 call
-    : TOKEN_STR                             { $$ = createStr($1); }
+    : TOKEN_STR                             { $$ = hellCreateStr($1); }
     ;
 
 lval
-    : TOKEN_STR                             { $$ = createStr($1); }
+    : TOKEN_STR                             { $$ = hellCreateStr($1); }
     ;
 
 args
-    : arg                                   { $$ = appendArg($1, NULL); }
-    | arg TOKEN_COMA arg                    { $$ = appendArg($1, $3); }
+    : arg                                   { $$ = hellAppendArg($1, NULL); }
+    | arg TOKEN_COMA arg                    { $$ = hellAppendArg($1, $3); }
     ;
 
 arg
-    : TOKEN_NUM                             { $$ = createNum($1); }
-    | TOKEN_QSTR                            { $$ = createStr($1); }
+    : TOKEN_NUM                             { $$ = hellCreateNum($1); }
+    | TOKEN_QSTR                            { $$ = hellCreateStr($1); }
     ;
 
 %%

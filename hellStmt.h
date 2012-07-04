@@ -22,14 +22,16 @@ typedef struct hellStmt {
     struct hellStmt *next;
 } hellStmt;
 
-hellStmt *createNum(unsigned long value);
-hellStmt *createStr(char *value);
+hellStmt *hellCreateNum(unsigned long value);
+hellStmt *hellCreateStr(char *value);
 
-hellStmt *appendArg(hellStmt *args, hellStmt *arg);
+hellStmt *hellAppendArg(hellStmt *args, hellStmt *arg);
 
-hellStmt *performCall(hellStmt *func, hellStmt *args);
-hellStmt *performAssign(hellStmt *lval, hellStmt *arg);
+hellStmt *hellPerformCall(hellStmt *func, hellStmt *args);
+hellStmt *hellPerformAssign(hellStmt *lval, hellStmt *arg);
 
-void deleteStmt(hellStmt *b);
+hellStmt *hellParse(const char *expr);
+
+void hellDeleteStmt(hellStmt *b);
 
 #endif

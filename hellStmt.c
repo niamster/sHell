@@ -7,6 +7,8 @@
 
 #include <stdlib.h>
 
+static unsigned int hellOrphanedStmts = 0;
+
 static hellStmt *
 allocateStmt(void)
 {
@@ -18,11 +20,34 @@ allocateStmt(void)
     b->type = hellUndef;
     b->next = NULL;
 
+    ++hellOrphanedStmts;
+
     return b;
 }
 
+void hellDeleteStmt(hellStmt *b)
+{
+    hellStmt *n, *t;
+
+    if (b == NULL)
+        return;
+
+    n = b->next;
+    while (n) {
+        t = n;
+        n = n->next;
+        free(t);
+
+        --hellOrphanedStmts;
+    }
+
+    free(b);
+
+    --hellOrphanedStmts;
+}
+
 hellStmt *
-createNum(unsigned long value)
+hellCreateNum(unsigned long value)
 {
     hellStmt *b = allocateStmt();
 
@@ -38,7 +63,7 @@ createNum(unsigned long value)
 }
 
 hellStmt *
-createStr(char *value)
+hellCreateStr(char *value)
 {
     hellStmt *b = allocateStmt();
 
@@ -54,7 +79,7 @@ createStr(char *value)
 }
 
 hellStmt *
-appendArg(hellStmt *args, hellStmt *arg)
+hellAppendArg(hellStmt *args, hellStmt *arg)
 {
     hellStmt *a = args;
 
@@ -66,97 +91,69 @@ appendArg(hellStmt *args, hellStmt *arg)
 }
 
 hellStmt *
-performAssign(hellStmt *lval, hellStmt *arg)
+hellPerformAssign(hellStmt *lval, hellStmt *arg)
 {
+    hellStmt *a = arg;
+
     printf("%s = ", lval->str);
-    while (arg) {
-        switch (arg->type) {
+    while (a) {
+        switch (a->type) {
             case hellNum:
-                printf("%u", arg->num);
+                printf("%u", a->num);
                 break;
             case hellStr:
-                printf("'%s'", arg->str);
+                printf("'%s'", a->str);
                 break;
             default:
                 printf("(undef)");
                 break;
         }
-        arg = arg->next;
+        a = a->next;
 
-        if (arg)
+        if (a)
             printf(", ");
     }
     printf("\n");
 
+    hellDeleteStmt(lval);
+    hellDeleteStmt(arg);
+
     return NULL;
 }
 
 hellStmt *
-performCall(hellStmt *call, hellStmt *arg)
+hellPerformCall(hellStmt *call, hellStmt *arg)
 {
+    hellStmt *a = arg;
+
     printf("%s(", call->str);
-    while (arg) {
-        switch (arg->type) {
+    while (a) {
+        switch (a->type) {
             case hellNum:
-                printf("%u", arg->num);
+                printf("%u", a->num);
                 break;
             case hellStr:
-                printf("'%s'", arg->str);
+                printf("'%s'", a->str);
                 break;
             default:
                 printf("(undef)");
                 break;
         }
-        arg = arg->next;
+        a = a->next;
 
-        if (arg)
+        if (a)
             printf(", ");
     }
     printf(")\n");
 
+    hellDeleteStmt(call);
+    hellDeleteStmt(arg);
+
     return NULL;
 }
 
-void deleteStmt(hellStmt *b)
-{
-    if (b == NULL)
-        return;
-
-    free(b);
-}
-
-int yyparse(hellStmt **expression, yyscan_t scanner);
-
-hellStmt *
-getAST(const char *expr)
-{
-    hellStmt *stmt;
-    yyscan_t scanner;
-    YY_BUFFER_STATE state;
-    extern int yydebug;
-
-    printf("stmt: %s\n", expr);
-
-    if (yylex_init(&scanner))
-        return NULL;
-
-    /* yyset_debug(100, scanner); */
-    /* yydebug = 1; */
-
-    state = yy_scan_string(expr, scanner);
-
-    if (yyparse(&stmt, scanner))
-        return NULL;
-
-    yy_delete_buffer(state, scanner);
-
-    yylex_destroy(scanner);
-
-    return stmt;
-}
-
 void
-evaluate(hellStmt *e)
+hellEvaluate(hellStmt *e)
 {
     if (!e)
         return;
@@ -171,6 +168,40 @@ evaluate(hellStmt *e)
         default:
             printf("%s %u\n", __func__, e->type);
     }
+
+    hellDeleteStmt(e);
+
+    if (hellOrphanedStmts)
+        printf("WARNING: %u orphaned statements\n", hellOrphanedStmts);
+}
+
+int yyparse(hellStmt **expression, yyscan_t scanner);
+
+hellStmt *
+hellParse(const char *expr)
+{
+    hellStmt *stmt;
+    yyscan_t scanner;
+    YY_BUFFER_STATE state;
+    extern int yydebug;
+
+    printf("stmt: %s\n", expr);
+
+    if (yylex_init(&scanner))
+        return NULL;
+
+    /* yyset_debug(1, scanner); */
+    /* yydebug = 1; */
+
+    state = yy_scan_string(expr, scanner);
+
+    yyparse(&stmt, scanner);
+
+    yy_delete_buffer(state, scanner);
+
+    yylex_destroy(scanner);
+
+    return stmt;
 }
 
 int main(void)
@@ -194,9 +225,8 @@ int main(void)
 
     for (i=0;i<sizeof(test)/sizeof(*test);++i) {
         printf("===============\n");
-        e = getAST(test[i]);
-        evaluate(e);
-        deleteStmt(e);
+        e = hellParse(test[i]);
+        hellEvaluate(e);
     }
 
     return 0;
