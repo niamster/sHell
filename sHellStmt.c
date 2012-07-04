@@ -1,33 +1,33 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include "hellStmt.h"
-#include "hellParser.h"
-#include "hellLexer.h"
+#include "sHellStmt.h"
+#include "sHellParser.h"
+#include "sHellLexer.h"
 
 #include <stdlib.h>
 
-static unsigned int hellOrphanedStmts = 0;
+static unsigned int sHellOrphanedStmts = 0;
 
-static hellStmt *
-allocateStmt(void)
+static sHellStmt *
+sHellAllocateStmt(void)
 {
-    hellStmt *b = malloc(sizeof(hellStmt));
+    sHellStmt *b = malloc(sizeof(sHellStmt));
 
     if (b == NULL)
         return NULL;
 
-    b->type = hellUndef;
+    b->type = sHellUndef;
     b->next = NULL;
 
-    ++hellOrphanedStmts;
+    ++sHellOrphanedStmts;
 
     return b;
 }
 
-void hellDeleteStmt(hellStmt *b)
+void sHellDeleteStmt(sHellStmt *b)
 {
-    hellStmt *n, *t;
+    sHellStmt *n, *t;
 
     if (b == NULL)
         return;
@@ -38,50 +38,46 @@ void hellDeleteStmt(hellStmt *b)
         n = n->next;
         free(t);
 
-        --hellOrphanedStmts;
+        --sHellOrphanedStmts;
     }
 
     free(b);
 
-    --hellOrphanedStmts;
+    --sHellOrphanedStmts;
 }
 
-hellStmt *
-hellCreateNum(unsigned long value)
+sHellStmt *
+sHellCreateNum(unsigned long value)
 {
-    hellStmt *b = allocateStmt();
-
-    /* printf("%s %lu\n", __func__, value); */
+    sHellStmt *b = sHellAllocateStmt();
 
     if (b == NULL)
         return NULL;
 
-    b->type = hellNum;
+    b->type = sHellNum;
     b->num = value;
 
     return b;
 }
 
-hellStmt *
-hellCreateStr(char *value)
+sHellStmt *
+sHellCreateStr(char *value)
 {
-    hellStmt *b = allocateStmt();
-
-    /* printf("%s '%s'\n", __func__, value); */
+    sHellStmt *b = sHellAllocateStmt();
 
     if (b == NULL)
         return NULL;
 
-    b->type = hellStr;
+    b->type = sHellStr;
     strncpy(b->str, value, sizeof(b->str));
 
     return b;
 }
 
-hellStmt *
-hellAppendArg(hellStmt *args, hellStmt *arg)
+sHellStmt *
+sHellAppendArg(sHellStmt *args, sHellStmt *arg)
 {
-    hellStmt *a = args;
+    sHellStmt *a = args;
 
     while (a->next)
         a = a->next;
@@ -90,18 +86,18 @@ hellAppendArg(hellStmt *args, hellStmt *arg)
     return args;
 }
 
-hellStmt *
-hellPerformAssign(hellStmt *lval, hellStmt *arg)
+sHellStmt *
+sHellPerformAssign(sHellStmt *lval, sHellStmt *arg)
 {
-    hellStmt *a = arg;
+    sHellStmt *a = arg;
 
     printf("%s = ", lval->str);
     while (a) {
         switch (a->type) {
-            case hellNum:
+            case sHellNum:
                 printf("%u", a->num);
                 break;
-            case hellStr:
+            case sHellStr:
                 printf("'%s'", a->str);
                 break;
             default:
@@ -115,24 +111,24 @@ hellPerformAssign(hellStmt *lval, hellStmt *arg)
     }
     printf("\n");
 
-    hellDeleteStmt(lval);
-    hellDeleteStmt(arg);
+    sHellDeleteStmt(lval);
+    sHellDeleteStmt(arg);
 
     return NULL;
 }
 
-hellStmt *
-hellPerformCall(hellStmt *call, hellStmt *arg)
+sHellStmt *
+sHellPerformCall(sHellStmt *call, sHellStmt *arg)
 {
-    hellStmt *a = arg;
+    sHellStmt *a = arg;
 
     printf("%s(", call->str);
     while (a) {
         switch (a->type) {
-            case hellNum:
+            case sHellNum:
                 printf("%u", a->num);
                 break;
-            case hellStr:
+            case sHellStr:
                 printf("'%s'", a->str);
                 break;
             default:
@@ -146,41 +142,41 @@ hellPerformCall(hellStmt *call, hellStmt *arg)
     }
     printf(")\n");
 
-    hellDeleteStmt(call);
-    hellDeleteStmt(arg);
+    sHellDeleteStmt(call);
+    sHellDeleteStmt(arg);
 
     return NULL;
 }
 
 void
-hellEvaluate(hellStmt *e)
+sHellEvaluate(sHellStmt *e)
 {
     if (!e)
         return;
 
     switch (e->type) {
-        case hellNum:
+        case sHellNum:
             printf("%s num %lu\n", __func__, e->num);
             break;
-        case hellStr:
+        case sHellStr:
             printf("%s str '%s'\n", __func__, e->str);
             break;
         default:
             printf("%s %u\n", __func__, e->type);
     }
 
-    hellDeleteStmt(e);
+    sHellDeleteStmt(e);
 
-    if (hellOrphanedStmts)
-        printf("WARNING: %u orphaned statements\n", hellOrphanedStmts);
+    if (sHellOrphanedStmts)
+        printf("WARNING: %u orphaned statements\n", sHellOrphanedStmts);
 }
 
-int yyparse(hellStmt **expression, yyscan_t scanner);
+int yyparse(sHellStmt **expression, yyscan_t scanner);
 
-hellStmt *
-hellParse(const char *expr)
+sHellStmt *
+sHellParse(const char *expr)
 {
-    hellStmt *stmt;
+    sHellStmt *stmt;
     yyscan_t scanner;
     YY_BUFFER_STATE state;
     extern int yydebug;
@@ -206,7 +202,7 @@ hellParse(const char *expr)
 
 int main(void)
 {
-    hellStmt *e;
+    sHellStmt *e;
     char *test[] = {
         "call   \"c\"  , 3  ",
         "call\"c\"  , 3  ",
@@ -226,8 +222,8 @@ int main(void)
 
     for (i=0;i<sizeof(test)/sizeof(*test);++i) {
         printf("===============\n");
-        e = hellParse(test[i]);
-        hellEvaluate(e);
+        e = sHellParse(test[i]);
+        sHellEvaluate(e);
     }
 
     return 0;

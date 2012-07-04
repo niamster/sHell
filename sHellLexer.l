@@ -1,18 +1,18 @@
 %{
 
 /*
- * hellLexer.l file
- * To generate the lexical analyzer run: "flex hellLexer.l"
+ * sHellLexer.l file
+ * To generate the lexical analyzer run: "flex sHellLexer.l"
  */
 
-#include "hellStmt.h"
-#include "hellParser.h"
+#include "sHellStmt.h"
+#include "sHellParser.h"
 
 #include <stdio.h>
 
 %}
 
-%option outfile="hellLexer.c" header-file="hellLexer.h"
+%option outfile="sHellLexer.c" header-file="sHellLexer.h"
 
 %option warn nodefault
 %option reentrant noyywrap never-interactive nounistd
@@ -44,6 +44,6 @@ WS          [ \r\n\t]*
 
 %%
 
-int yyerror(hellStmt *e, yyscan_t scanner, const char *msg) {
+int yyerror(sHellStmt *e, yyscan_t scanner, const char *msg) {
     fprintf(stderr,"Error: '%s'\n" ,msg); return 0;
 }
