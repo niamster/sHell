@@ -56,9 +56,9 @@ exprs
     ;
 
 expr
-    : call args                             { $$ = sHellPerformCall($1, $2); }
-    | call                                  { $$ = sHellPerformCall($1, NULL); }
-    | lval TOKEN_ASSIGN arg                 { $$ = sHellPerformAssign($1, $3); }
+    : call args                             { sHellPerformCall($1, $2); }
+    | call                                  { sHellPerformCall($1, NULL); }
+    | lval TOKEN_ASSIGN arg                 { sHellPerformAssign($1, $3); }
     ;
 
 call

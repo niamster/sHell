@@ -1,7 +1,52 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include "sHellStmt.h"
+#include "sHell.h"
+
+static
+void
+sHellTestAssign(const char *name, const sHellStmt *arg)
+{
+    printf("%s = ", name);
+    switch (arg->type) {
+        case sHellNum:
+            printf("%u", arg->num);
+            break;
+        case sHellStr:
+            printf("'%s'", arg->str);
+            break;
+        default:
+            printf("(undef)");
+            break;
+    }
+    printf("\n");
+}
+
+static
+void
+sHellTestCall(const char *name, const sHellStmt *arg)
+{
+    printf("%s(", name);
+    while (arg) {
+        switch (arg->type) {
+            case sHellNum:
+                printf("%u", arg->num);
+                break;
+            case sHellStr:
+                printf("'%s'", arg->str);
+                break;
+            default:
+                printf("(undef)");
+                break;
+        }
+        arg = arg->next;
+
+        if (arg)
+            printf(", ");
+    }
+    printf(")\n");
+}
+
 
 int main(void)
 {
@@ -16,18 +61,21 @@ int main(void)
         "callA   \"c b\"  , 3  ;callB\"c\"  , 3  ;  a=   \"c\"    ",
         "a   =0x8    ",
         "a   = 0x10    ",
-        "a=0xA;    b   = 0x10;; ; ;",
+        "a=0xA; ; ;  b   = 0x10;; ; ;",
         "a=0;; ;",
+        "a=0,1",            /* should be syntax error */
         "a= \"   2\";; ;",
         "cA ;; cB ;",
     };
     int i;
 
+    sHellSetAssignCbk(sHellTestAssign);
+    sHellSetCallCbk(sHellTestCall);
+
     for (i=0;i<sizeof(test)/sizeof(*test);++i) {
         printf("===============\n");
-        printf("stmt: %s\n", test[i]);
-        e = sHellParse(test[i]);
-        sHellEvaluate(e);
+        printf("stmt: `%s`\n", test[i]);
+        sHellParse(test[i]);
     }
 
     return 0;

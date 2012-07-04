@@ -1,13 +1,11 @@
-#include <stdio.h>
-#include <assert.h>
-
 #include "sHellStmt.h"
 #include "sHellParser.h"
 #include "sHellLexer.h"
 
-#include <stdlib.h>
-
 static unsigned int sHellOrphanedStmts = 0;
+
+static sHellAssignCbk   sHellAssign;
+static sHellCallCbk     sHellCall;
 
 static sHellStmt *
 sHellAllocateStmt(void)
@@ -25,7 +23,9 @@ sHellAllocateStmt(void)
     return b;
 }
 
-void sHellDeleteStmt(sHellStmt *b)
+static
+void
+sHellDeleteStmt(sHellStmt *b)
 {
     sHellStmt *n, *t;
 
@@ -44,6 +44,18 @@ void sHellDeleteStmt(sHellStmt *b)
     free(b);
 
     --sHellOrphanedStmts;
+}
+
+sHellAssignCbk
+sHellSetAssignCbk(sHellAssignCbk cbk)
+{
+    sHellAssign = cbk;
+}
+
+sHellCallCbk
+sHellSetCallCbk(sHellCallCbk cbk)
+{
+    sHellCall = cbk;
 }
 
 sHellStmt *
@@ -86,66 +98,22 @@ sHellAppendArg(sHellStmt *args, sHellStmt *arg)
     return args;
 }
 
-sHellStmt *
+void
 sHellPerformAssign(sHellStmt *lval, sHellStmt *arg)
 {
-    sHellStmt *a = arg;
-
-    printf("%s = ", lval->str);
-    while (a) {
-        switch (a->type) {
-            case sHellNum:
-                printf("%u", a->num);
-                break;
-            case sHellStr:
-                printf("'%s'", a->str);
-                break;
-            default:
-                printf("(undef)");
-                break;
-        }
-        a = a->next;
-
-        if (a)
-            printf(", ");
-    }
-    printf("\n");
+    sHellAssign(lval->str, arg);
 
     sHellDeleteStmt(lval);
     sHellDeleteStmt(arg);
-
-    return NULL;
 }
 
-sHellStmt *
-sHellPerformCall(sHellStmt *call, sHellStmt *arg)
+void
+sHellPerformCall(sHellStmt *call, sHellStmt *args)
 {
-    sHellStmt *a = arg;
-
-    printf("%s(", call->str);
-    while (a) {
-        switch (a->type) {
-            case sHellNum:
-                printf("%u", a->num);
-                break;
-            case sHellStr:
-                printf("'%s'", a->str);
-                break;
-            default:
-                printf("(undef)");
-                break;
-        }
-        a = a->next;
-
-        if (a)
-            printf(", ");
-    }
-    printf(")\n");
+    sHellCall(call->str, args);
 
     sHellDeleteStmt(call);
-    sHellDeleteStmt(arg);
-
-    return NULL;
+    sHellDeleteStmt(args);
 }
 
 void
@@ -173,7 +141,7 @@ sHellEvaluate(sHellStmt *e)
 
 int yyparse(sHellStmt **expression, yyscan_t scanner);
 
-sHellStmt *
+void
 sHellParse(const char *expr)
 {
     sHellStmt *stmt;
@@ -182,7 +150,7 @@ sHellParse(const char *expr)
     extern int yydebug;
 
     if (yylex_init(&scanner))
-        return NULL;
+        return;
 
     /* yyset_debug(1, scanner); */
     /* yydebug = 1; */
@@ -194,6 +162,4 @@ sHellParse(const char *expr)
     yy_delete_buffer(state, scanner);
 
     yylex_destroy(scanner);
-
-    return stmt;
 }

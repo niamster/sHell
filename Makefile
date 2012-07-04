@@ -4,16 +4,16 @@ LEX		:= flex
 BISON	:= bison
 
 ifeq ($(DEBUG), 1)
-CFLAGS := -O0 -g -DDEBUG=1
-BFLAGS := --verbose -d
-LFLAGS := -d
-else
-CFLAGS := -O3
-BFLAGS :=
-LFLAGS :=
-endif
-
+CFLAGS  := -O0 -g -DDEBUG=1
+BFLAGS  := --verbose -d
+LFLAGS  := -d
 LDFLAGS :=
+else
+CFLAGS  := -O3 -ffunction-sections -fdata-sections
+BFLAGS  :=
+LFLAGS  :=
+LDFLAGS := -Wl,-gc-sections
+endif
 
 ifeq ($(MAKE_VERBOSE), 1)
 Q :=
