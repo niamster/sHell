@@ -8,10 +8,84 @@
 static sHellAssignCbk   sHellAssign;
 static sHellCallCbk     sHellCall;
 
+static sHellStmt *sHellHeapAllocStmt(void);
+static void sHellHeapFreeStmt(sHellStmt *stmt);
+static char *sHellHeapAllocStr(unsigned int size);
+static void sHellHeapFreeStr(char *str);
+
+static sHellAllocStmtCbk    sHellAllocStmt = sHellHeapAllocStmt;
+static sHellFreeStmtCbk     sHellFreeStmt  = sHellHeapFreeStmt;
+static sHellAllocStrCbk     sHellAllocStr  = sHellHeapAllocStr;
+static sHellFreeStrCbk      sHellFreeStr   = sHellHeapFreeStr;
+
+sHellAllocStmtCbk
+sHellSetStmtAllocCbk(sHellAllocStmtCbk cbk)
+{
+    sHellAllocStmtCbk old = sHellAllocStmt;
+
+    sHellAllocStmt = cbk;
+
+    return old;
+}
+
+sHellFreeStmtCbk
+sHellSetStmtFreeCbk(sHellFreeStmtCbk cbk)
+{
+    sHellFreeStmtCbk old = sHellFreeStmt;
+
+    sHellFreeStmt = cbk;
+
+    return old;
+}
+
+sHellAllocStrCbk
+sHellSetStrAllocCbk(sHellAllocStrCbk cbk)
+{
+    sHellAllocStrCbk old = sHellAllocStr;
+
+    sHellAllocStr = cbk;
+
+    return old;
+}
+
+sHellFreeStrCbk
+sHellSetStrFreeCbk(sHellFreeStrCbk cbk)
+{
+    sHellFreeStrCbk old = sHellFreeStr;
+
+    sHellFreeStr = cbk;
+
+    return old;
+}
+
+static sHellStmt *
+sHellHeapAllocStmt(void)
+{
+    return malloc(sizeof(sHellStmt));
+}
+
+static void
+sHellHeapFreeStmt(sHellStmt *stmt)
+{
+    free(stmt);
+}
+
+static char *
+sHellHeapAllocStr(unsigned int size)
+{
+    return malloc(size);
+}
+
+static void
+sHellHeapFreeStr(char *str)
+{
+    free(str);
+}
+
 static sHellStmt *
 sHellAllocateStmt(void)
 {
-    sHellStmt *b = malloc(sizeof(sHellStmt));
+    sHellStmt *b = sHellAllocStmt();
 
     if (b == NULL)
         return NULL;
@@ -37,32 +111,40 @@ sHellDeleteStmt(sHellStmt *b)
         t = n;
         n = n->next;
         if (sHellStr == t->type && t->str)
-            free(t->str);
-        free(t);
+            sHellHeapFreeStr(t->str);
+        sHellFreeStmt(t);
     }
 
     if (sHellStr == b->type && b->str)
-        free(b->str);
-    free(b);
+        sHellHeapFreeStr(b->str);
+    sHellFreeStmt(b);
 }
 
 sHellAssignCbk
 sHellSetAssignCbk(sHellAssignCbk cbk)
 {
+    sHellAssignCbk old = sHellAssign;
+
     sHellAssign = cbk;
+
+    return old;
 }
 
 sHellCallCbk
 sHellSetCallCbk(sHellCallCbk cbk)
 {
+    sHellCallCbk old = sHellCall;
+
     sHellCall = cbk;
+
+    return old;
 }
 
 char *
 sHellProcessString(const char *str)
 {
     size_t l = strlen(str) + 1;
-    char *s = malloc(l);
+    char *s = sHellHeapAllocStr(l);
 
     if (s == NULL)
         return s;
@@ -74,7 +156,7 @@ char *
 sHellProcessQString(const char *str)
 {
     size_t l = strlen(str) - 1;
-    char *s = malloc(l);
+    char *s = sHellHeapAllocStr(l);
 
     if (s == NULL)
         return s;

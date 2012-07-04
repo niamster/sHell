@@ -29,4 +29,14 @@ typedef void (*sHellCallCbk)(const char *name, const sHellStmt *args);
 sHellAssignCbk sHellSetAssignCbk(sHellAssignCbk cbk);
 sHellCallCbk sHellSetCallCbk(sHellCallCbk cbk);
 
+typedef sHellStmt *(*sHellAllocStmtCbk)(void);
+typedef void (*sHellFreeStmtCbk)(sHellStmt *stmt);
+typedef char *(*sHellAllocStrCbk)(unsigned int size);
+typedef void (*sHellFreeStrCbk)(char *str);
+
+sHellAllocStmtCbk sHellSetStmtAllocCbk(sHellAllocStmtCbk cbk);
+sHellFreeStmtCbk sHellSetStmtFreeCbk(sHellFreeStmtCbk cbk);
+sHellAllocStrCbk sHellSetStrAllocCbk(sHellAllocStrCbk cbk);
+sHellFreeStrCbk sHellSetStrFreeCbk(sHellFreeStrCbk cbk);
+
 #endif
