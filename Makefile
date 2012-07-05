@@ -4,7 +4,7 @@ LEX		:= flex
 BISON	:= bison
 
 ifeq ($(DEBUG), 1)
-CFLAGS  := -O0 -g -DDEBUG=1
+CFLAGS  := -O0 -g -DDEBUG=1 -DYYDEBUG=1 -DYYERROR_VERBOSE=1
 BFLAGS  := --verbose -d
 LFLAGS  := -d
 LDFLAGS :=
