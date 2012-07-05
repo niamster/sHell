@@ -25,6 +25,7 @@ STR         [a-zA-Z]+
 HEX         0x[0-9a-zA-Z]+
 QSTR        \"[ 0-9a-zA-Z]+\"
 WS          [ \r\n\t]*
+COMMENT     #.*
 
 %%
 
@@ -38,6 +39,7 @@ WS          [ \r\n\t]*
 {COMA}          { return TOKEN_COMA; }
 {SEMI}          { return TOKEN_SEMI; }
 {ASSIGN}        { return TOKEN_ASSIGN; }
+{COMMENT}       { return TOKEN_COMMENT; }
 .               { }
 
 %%

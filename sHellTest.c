@@ -66,6 +66,9 @@ int main(void)
         "a=0,1",            /* should be syntax error */
         "a= \"   2\";; ;",
         "cA ;; cB ;",
+        "#cA ;; cB ;",
+        "cA ;#; a=4 ;",
+        "cA ;a=3; b=2#4 ;",
     };
     int i;
 
