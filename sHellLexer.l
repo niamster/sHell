@@ -21,9 +21,9 @@ SEMI        ";"
 ASSIGN      "="
 
 NUM         [0-9]+
-STR         [a-zA-Z]+
+STR         [_0-9a-zA-Z]+
 HEX         0x[0-9a-zA-Z]+
-QSTR        \"[ 0-9a-zA-Z]+\"
+QSTR        \"[^\"]+\"
 WS          [ \r\n\t]*
 COMMENT     #.*
 
