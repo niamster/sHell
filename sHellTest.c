@@ -53,6 +53,7 @@ int main(void)
     sHellStmt *e;
     char *test[] = {
         "call   \"c\"  , 3  ",
+        "call   \"c\"  , 3, 4,5 ,0  ",
         "call\"c\"  , 3  ",
         "call\"c\"    ",
         "a=   \"c\"    ",

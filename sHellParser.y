@@ -74,7 +74,7 @@ lval
 
 args
     : arg                                   { $$ = sHellAppendArg($1, NULL); }
-    | arg TOKEN_COMA arg                    { $$ = sHellAppendArg($1, $3); }
+    | args TOKEN_COMA arg                   { $$ = sHellAppendArg($1, $3); }
     ;
 
 arg
