@@ -19,7 +19,7 @@ int yyerror(yyscan_t scanner, sHellStmt **expression, const char *msg);
 %define api.pure
 %lex-param   { yyscan_t scanner }
 %parse-param { sHellStmt **stmt }
-%parse-param { yyscan_t scanner }
+%parse-param { void *scanner }
 
 %union {
     unsigned long num;
