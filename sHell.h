@@ -25,8 +25,11 @@ typedef struct sHellStmt {
 
 void sHellParse(const char *expr);
 
+sHellStmt *sHellReturnNum(unsigned long value);
+sHellStmt *sHellReturnStr(const char *value);
+
 typedef void (*sHellAssignCbk)(const char *name, const sHellStmt *arg);
-typedef void (*sHellCallCbk)(const char *name, const sHellStmt *args);
+typedef sHellStmt * (*sHellCallCbk)(const char *name, const sHellStmt *args);
 
 sHellAssignCbk sHellSetAssignCbk(sHellAssignCbk cbk);
 sHellCallCbk sHellSetCallCbk(sHellCallCbk cbk);

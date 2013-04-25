@@ -8,22 +8,25 @@ void
 sHellTestAssign(const char *name, const sHellStmt *arg)
 {
     printf("%s = ", name);
-    switch (arg->type) {
-        case sHellNum:
-            printf("%u", arg->num);
-            break;
-        case sHellStr:
-            printf("'%s'", arg->str);
-            break;
-        default:
-            printf("(undef)");
-            break;
-    }
+    if (!arg)
+        printf("<null>");
+    else
+        switch (arg->type) {
+            case sHellNum:
+                printf("%u", arg->num);
+                break;
+            case sHellStr:
+                printf("'%s'", arg->str);
+                break;
+            default:
+                printf("(undef)");
+                break;
+        }
     printf("\n");
 }
 
 static
-void
+sHellStmt *
 sHellTestCall(const char *name, const sHellStmt *arg)
 {
     printf("%s(", name);
@@ -45,6 +48,8 @@ sHellTestCall(const char *name, const sHellStmt *arg)
             printf(", ");
     }
     printf(")\n");
+
+    return sHellReturnStr("OK");
 }
 
 
@@ -71,6 +76,10 @@ int main(void)
         "cA ;#; a=4 ;",
         "cA ;a=3; b=2#4 ;",
         "k=\"~!@#$%^&*()_+0A\" ;",
+        "k=call",
+        "k=call \"a\"",
+        "k=call \"a\", \"b\"",
+        "k=call 0x1234",
     };
     int i;
 

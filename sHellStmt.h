@@ -8,7 +8,7 @@ sHellStmt *sHellCreateStr(char *value);
 
 sHellStmt *sHellAppendArg(sHellStmt *args, sHellStmt *arg);
 
-void sHellPerformCall(sHellStmt *func, sHellStmt *args);
+sHellStmt *sHellPerformCall(sHellStmt *func, sHellStmt *args, int res);
 void sHellPerformAssign(sHellStmt *lval, sHellStmt *arg);
 
 char *sHellProcessString(const char *str);

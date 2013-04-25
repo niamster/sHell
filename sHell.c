@@ -1,6 +1,7 @@
 #include <stdlib.h>
 
 #include "sHell.h"
+#include "sHellStmt.h"
 
 void *sHellDfltAlloc(size_t sz);
 void sHellDfltFree(void *p);
@@ -46,4 +47,20 @@ void *sHellDfltAlloc(size_t sz)
 void sHellDfltFree(void *p)
 {
     free(p);
+}
+
+sHellStmt *sHellReturnNum(unsigned long value)
+{
+    return sHellCreateNum(value);
+}
+
+sHellStmt *sHellReturnStr(const char *value)
+{
+    char *s;
+
+    s = sHellProcessString(value);
+    if (!s)
+        return NULL;
+
+    return sHellCreateStr(s);
 }

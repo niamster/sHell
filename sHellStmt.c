@@ -145,7 +145,7 @@ sHellProcessString(const char *str)
     char *s = sHellDfltAllocStr(l);
 
     if (s == NULL)
-        return s;
+        return NULL;
 
     return memcpy(s, str, l);
 }
@@ -157,7 +157,7 @@ sHellProcessQString(const char *str)
     char *s = sHellDfltAllocStr(l);
 
     if (s == NULL)
-        return s;
+        return NULL;
 
     memcpy(s, str+1, l);
 
@@ -221,13 +221,21 @@ sHellPerformAssign(sHellStmt *lval, sHellStmt *arg)
     sHellDeleteStmt(arg);
 }
 
-void
-sHellPerformCall(sHellStmt *call, sHellStmt *args)
+sHellStmt *
+sHellPerformCall(sHellStmt *call, sHellStmt *args, int res)
 {
-    sHellCall(call->str, args);
+    sHellStmt *ret;
+
+    ret = sHellCall(call->str, args);
+    if (!res && ret) {
+        sHellDeleteStmt(ret);
+        ret = NULL;
+    }
 
     sHellDeleteStmt(call);
     sHellDeleteStmt(args);
+
+    return ret;
 }
 
 int yyparse(sHellStmt **expression, yyscan_t scanner);
@@ -243,8 +251,10 @@ sHellParse(const char *expr)
     if (yylex_init(&scanner))
         return;
 
-    /* yyset_debug(1, scanner); */
-    /* yydebug = 1; */
+#if defined(DEBUG)
+    yyset_debug(1, scanner);
+    yydebug = 1;
+#endif
 
     state = yy_scan_string(expr, scanner);
 
