@@ -1,6 +1,8 @@
 #ifndef _SHELL_H_
 #define _SHELL_H_
 
+#include <sys/types.h>
+
 typedef enum sHellTokenType {
     sHellNum,
     sHellStr,
@@ -28,6 +30,15 @@ typedef void (*sHellCallCbk)(const char *name, const sHellStmt *args);
 
 sHellAssignCbk sHellSetAssignCbk(sHellAssignCbk cbk);
 sHellCallCbk sHellSetCallCbk(sHellCallCbk cbk);
+
+typedef void *(*sHellAllocCbk)(size_t);
+typedef void (*sHellFreeCbk)(void *);
+
+sHellAllocCbk sHellSetAllocCbk(sHellAllocCbk cbk);
+sHellFreeCbk sHellSet(sHellFreeCbk cbk);
+
+void *sHellAlloc(size_t sz);
+void sHellFree(void *p);
 
 typedef sHellStmt *(*sHellAllocStmtCbk)(void);
 typedef void (*sHellFreeStmtCbk)(sHellStmt *stmt);

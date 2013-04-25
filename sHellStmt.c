@@ -1,6 +1,4 @@
-#include <string.h>
-#include <stdlib.h>
-
+#include "sHell.h"
 #include "sHellStmt.h"
 #include "sHellParser.h"
 #include "sHellLexer.h"
@@ -8,15 +6,15 @@
 static sHellAssignCbk   sHellAssign;
 static sHellCallCbk     sHellCall;
 
-static sHellStmt *sHellHeapAllocStmt(void);
-static void sHellHeapFreeStmt(sHellStmt *stmt);
-static char *sHellHeapAllocStr(unsigned int size);
-static void sHellHeapFreeStr(char *str);
+static sHellStmt *sHellDfltAllocStmt(void);
+static void sHellDfltFreeStmt(sHellStmt *stmt);
+static char *sHellDfltAllocStr(unsigned int size);
+static void sHellDfltFreeStr(char *str);
 
-static sHellAllocStmtCbk    sHellAllocStmt = sHellHeapAllocStmt;
-static sHellFreeStmtCbk     sHellFreeStmt  = sHellHeapFreeStmt;
-static sHellAllocStrCbk     sHellAllocStr  = sHellHeapAllocStr;
-static sHellFreeStrCbk      sHellFreeStr   = sHellHeapFreeStr;
+static sHellAllocStmtCbk    sHellAllocStmt = sHellDfltAllocStmt;
+static sHellFreeStmtCbk     sHellFreeStmt  = sHellDfltFreeStmt;
+static sHellAllocStrCbk     sHellAllocStr  = sHellDfltAllocStr;
+static sHellFreeStrCbk      sHellFreeStr   = sHellDfltFreeStr;
 
 sHellAllocStmtCbk
 sHellSetStmtAllocCbk(sHellAllocStmtCbk cbk)
@@ -59,27 +57,27 @@ sHellSetStrFreeCbk(sHellFreeStrCbk cbk)
 }
 
 static sHellStmt *
-sHellHeapAllocStmt(void)
+sHellDfltAllocStmt(void)
 {
-    return malloc(sizeof(sHellStmt));
+    return sHellAlloc(sizeof(sHellStmt));
 }
 
 static void
-sHellHeapFreeStmt(sHellStmt *stmt)
+sHellDfltFreeStmt(sHellStmt *stmt)
 {
-    free(stmt);
+    sHellFree(stmt);
 }
 
 static char *
-sHellHeapAllocStr(unsigned int size)
+sHellDfltAllocStr(unsigned int size)
 {
-    return malloc(size);
+    return sHellAlloc(size);
 }
 
 static void
-sHellHeapFreeStr(char *str)
+sHellDfltFreeStr(char *str)
 {
-    free(str);
+    sHellFree(str);
 }
 
 static sHellStmt *
@@ -111,12 +109,12 @@ sHellDeleteStmt(sHellStmt *b)
         t = n;
         n = n->next;
         if (sHellStr == t->type && t->str)
-            sHellHeapFreeStr(t->str);
+            sHellDfltFreeStr(t->str);
         sHellFreeStmt(t);
     }
 
     if (sHellStr == b->type && b->str)
-        sHellHeapFreeStr(b->str);
+        sHellDfltFreeStr(b->str);
     sHellFreeStmt(b);
 }
 
@@ -144,7 +142,7 @@ char *
 sHellProcessString(const char *str)
 {
     size_t l = strlen(str) + 1;
-    char *s = sHellHeapAllocStr(l);
+    char *s = sHellDfltAllocStr(l);
 
     if (s == NULL)
         return s;
@@ -156,7 +154,7 @@ char *
 sHellProcessQString(const char *str)
 {
     size_t l = strlen(str) - 1;
-    char *s = sHellHeapAllocStr(l);
+    char *s = sHellDfltAllocStr(l);
 
     if (s == NULL)
         return s;

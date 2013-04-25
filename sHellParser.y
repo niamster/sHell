@@ -9,6 +9,10 @@
 #include "sHellParser.h"
 #include "sHellLexer.h"
 
+#define YYMALLOC sHellAlloc
+#define YYFREE sHellFree
+
+
 int yyerror(yyscan_t scanner, sHellStmt **expression, const char *msg);
 
 %}

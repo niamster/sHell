@@ -13,6 +13,7 @@
 %option outfile="sHellLexer.c" header-file="sHellLexer.h"
 
 %option warn nodefault
+%option noyyalloc noyyrealloc noyyfree
 %option reentrant noyywrap never-interactive nounistd
 %option bison-bridge
 
@@ -43,6 +44,24 @@ COMMENT     #.*
 .               { }
 
 %%
+
+void *yyalloc(size_t sz, void *extra) {
+  return sHellAlloc(sz);
+}
+
+void* yyrealloc(void *p, size_t sz, void *extra) {
+  if (p)
+    sHellFree(p);
+
+  if (sz)
+    return sHellAlloc(sz);
+  else
+    return NULL;
+}
+
+void yyfree(void *p, void *extra) {
+  sHellFree(p);
+}
 
 int yyerror(sHellStmt *e, yyscan_t scanner, const char *msg) {
     fprintf(stderr,"Error: '%s'\n" ,msg); return 0;

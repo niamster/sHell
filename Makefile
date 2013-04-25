@@ -26,9 +26,9 @@ all: sHellTest
 sHellTest: sHellTest.c sHell.a
 	$(Q)$(CC) $^ $(CFLAGS) -o $@ $(LDFLAGS)
 
-sHell.a: sHellParser.c sHellLexer.c sHellStmt.c sHellStmt.h
+sHell.a: sHellParser.c sHellLexer.c sHellStmt.c sHellStmt.h sHell.h sHell.c
 	$(Q)$(CC) $^ $(CFLAGS) -c $(LDFLAGS)
-	$(Q)$(AR) cr $@ sHellParser.o sHellLexer.o sHellStmt.o
+	$(Q)$(AR) cr $@ sHellParser.o sHellLexer.o sHellStmt.o sHell.o
 
 sHellParser.c: sHellParser.y
 	$(Q)$(BISON) $(BFLAGS) $^
