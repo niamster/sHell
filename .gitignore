@@ -1,0 +1,8 @@
+*.o
+*.a
+*.gch
+sHellTest
+sHellParser.c
+sHellParser.h
+sHellLexer.c
+sHellLexer.h
